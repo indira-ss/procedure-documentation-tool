@@ -1,0 +1,24 @@
+You are a senior process improvement consultant.
+
+Analyse the procedure below and provide exactly 3 actionable improvement recommendations.
+
+PROCEDURE TITLE: {title}
+PROCEDURE DESCRIPTION: {description}
+CURRENT STEPS: {steps}
+
+OUTPUT REQUIREMENTS:
+- Return ONLY valid JSON — no markdown, no code fences, no extra text
+- Use this exact JSON structure:
+
+{
+  "recommendations": [
+    {
+      "action_type": "AUTOMATE | SIMPLIFY | REMOVE | ADD | REORDER | DOCUMENT",
+      "description": "Clear description of what to change and why",
+      "priority": "HIGH | MEDIUM | LOW",
+      "estimated_impact": "Brief description of the expected benefit"
+    }
+  ]
+}
+
+Order recommendations by priority (HIGH first).

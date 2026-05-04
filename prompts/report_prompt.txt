@@ -1,0 +1,27 @@
+You are a senior documentation manager producing an executive-level report.
+
+PROCEDURE TITLE: {title}
+PROCEDURE DESCRIPTION: {description}
+STEPS: {steps}
+CATEGORY: {category}
+CREATED DATE: {created_date}
+LAST UPDATED: {last_updated}
+
+OUTPUT REQUIREMENTS:
+- Return ONLY valid JSON — no markdown, no code fences, no extra text
+- Use this exact JSON structure:
+
+{
+  "report_title": "Official report title",
+  "generated_at": "{generated_at}",
+  "executive_summary": "2-3 sentences for a senior manager",
+  "overview": {
+    "purpose": "Why this procedure exists",
+    "scope": "Who and what it applies to",
+    "compliance_notes": "Any regulatory considerations"
+  },
+  "key_items": [{"item": "Important aspect", "detail": "Explanation"}],
+  "risk_assessment": {"level": "LOW | MEDIUM | HIGH", "factors": []},
+  "recommendations": ["Top recommendation"],
+  "conclusion": "One paragraph closing statement"
+}
