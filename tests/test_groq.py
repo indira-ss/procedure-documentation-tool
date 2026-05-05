@@ -1,8 +1,5 @@
-﻿from dotenv import load_dotenv
-load_dotenv()
-
 import os
-print("API Key loaded:", os.getenv("GROQ_API_KEY"))
+os.environ["GROQ_API_KEY"] = ""  # paste your new key here
 
 from services.groq_client import call_groq
 
@@ -12,4 +9,4 @@ if result:
     print("✅ Groq is working!")
     print(result)
 else:
-    print("❌ Groq failed — check your API key in .env")
+    print("❌ Groq failed")

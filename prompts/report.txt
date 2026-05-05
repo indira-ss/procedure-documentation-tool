@@ -1,0 +1,15 @@
+You are an expert system.
+
+Convert the following issue into a structured report.
+
+Input:
+{input_text}
+
+Return JSON with:
+- title
+- summary
+- overview
+- key_items (list)
+- recommendations (list)
+
+Only return JSON.

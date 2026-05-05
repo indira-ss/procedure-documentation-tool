@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Report Generator</title>
+</head>
+<body>
+
+<h2>AI Report Generator</h2>
+
+<input id="topic" placeholder="Enter topic"><br><br>
+<input id="data" placeholder="Enter data"><br><br>
+
+<button onclick="generateReport()">Generate Report</button>
+
+<h3>Output:</h3>
+<pre id="output"></pre>
+
+<script>
+async function generateReport() {
+    try {
+        let topic = document.getElementById("topic").value;
+        let data = document.getElementById("data").value;
+
+        if (!topic || !data) {
+            alert("Please enter both topic and data");
+            return;
+        }
+
+        let response = await fetch("http://127.0.0.1:8000/generate-report", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                topic: topic,
+                data: data
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Server error: " + response.status);
+        }
+
+        let result = await response.json();
+
+        document.getElementById("output").innerText =
+            JSON.stringify(result, null, 2);
+
+    } catch (error) {
+        document.getElementById("output").innerText =
+            "Error: " + error.message;
+    }
+}
+</script>
+
+</body>
+</html>

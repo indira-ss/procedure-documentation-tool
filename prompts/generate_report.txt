@@ -1,0 +1,13 @@
+You are a technical documentation assistant.
+Given the following procedure data, generate a structured report.
+Return ONLY valid JSON with this exact structure:
+{
+  "title": "string",
+  "summary": "string",
+  "overview": "string",
+  "key_items": ["string", "string", "string"],
+  "recommendations": ["string", "string", "string"],
+  "generated_at": "ISO timestamp"
+}
+Procedure Data: {procedure_data}
+Do not include any text outside the JSON object.

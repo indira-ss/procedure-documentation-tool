@@ -1,27 +1,38 @@
-from flask import Flask, jsonify
-from routes.describe import describe_bp
-from routes.recommend import recommend_bp
-import time
+from fastapi import FastAPI
+from pydantic import BaseModel
 from groq import Groq
 
+app = FastAPI()
+from dotenv import load_dotenv
+load_dotenv()
 import os
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+from groq import Groq
 
-app = Flask(__name__)
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-start_time = time.time()
+class ReportRequest(BaseModel):
+    topic: str
 
-app.register_blueprint(describe_bp)
-app.register_blueprint(recommend_bp)
 
-@app.route("/health")
-def health():
-    return jsonify({
-        "status": "ok",
-        "model": "groq",
-        "uptime_seconds": int(time.time() - start_time)
-    })
+@app.post("/generate-report")
+def generate_report(request: ReportRequest):
 
-# 🔥 THIS PART WAS MISSING
-if __name__ == "__main__":
-    app.run(debug=True)
+    prompt = f"""
+    Generate a structured report on: {request.topic}
+
+    Return JSON with:
+    - title
+    - summary
+    - overview (paragraph)
+    - key_items (list)
+    - recommendations (list)
+    """
+
+    response = client.chat.completions.create(
+        model="llama-3.1-70b-versatile",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return {
+        "report": response.choices[0].message.content
+    }
