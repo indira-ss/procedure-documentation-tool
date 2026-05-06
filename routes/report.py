@@ -1,45 +1,55 @@
 from flask import Blueprint, request, jsonify
+import re
+
+from services.cache_service import generate_cache_key, get_cache, set_cache
 from services.groq_client import call_groq
-from datetime import datetime, timezone
-import json, os, re
 
-report_bp = Blueprint('report', __name__)
+report_bp = Blueprint("report", __name__)
 
-def load_prompt(data: str) -> str:
-    path = os.path.join(os.path.dirname(__file__), '../prompts/generate_report.txt')
-    with open(path) as f:
-        return f.read().replace('{procedure_data}', data)
-
-@report_bp.route('/generate-report', methods=['POST'])
+@report_bp.route("/generate-report", methods=["POST"])
 def generate_report():
-    body = request.get_json(silent=True)
-    if not body or not body.get('procedure_data'):
-        return jsonify({'error': 'procedure_data is required'}), 400
 
-    raw = body['procedure_data'].strip()
+    data = request.get_json()
+
+    if not data or "procedure_data" not in data:
+        return jsonify({"error": "procedure_data required"}), 400
+
+    raw = data["procedure_data"].strip()
+
     if not raw:
-        return jsonify({'error': 'procedure_data cannot be empty'}), 400
+        return jsonify({"error": "empty input"}), 400
 
-    prompt = load_prompt(raw)
-    response = call_groq(prompt)
+    # 🔐 CACHE KEY
+    cache_key = generate_cache_key(raw)
+
+    # 🔍 CHECK CACHE
+    cached = get_cache(cache_key)
+    if cached:
+        return jsonify(cached), 200
+
+    # 🤖 AI CALL
+    response = call_groq(raw)
 
     if response is None:
         return jsonify({
-            'title': 'Report Unavailable',
-            'summary': 'AI service is temporarily unavailable.',
-            'overview': '',
-            'key_items': [],
-            'recommendations': [],
-            'generated_at': datetime.now(timezone.utc).isoformat(),
-            'is_fallback': True
+            "title": "Report Unavailable",
+            "summary": "AI service error",
+            "is_fallback": True
         }), 200
 
+    # 🧹 CLEAN RESPONSE
+    clean = re.sub(r'```json|```', '', response).strip()
+
     try:
-        # Strip markdown fences if Groq wraps in ```json
-        clean = re.sub(r'```json|```', '', response).strip()
-        parsed = json.loads(clean)
-        parsed['generated_at'] = datetime.now(timezone.utc).isoformat()
-        parsed['is_fallback'] = False
-        return jsonify(parsed), 200
-    except json.JSONDecodeError:
-        return jsonify({'error': 'Failed to parse AI response', 'is_fallback': True}), 502
+        parsed = {
+            "title": "AI Report",
+            "summary": clean,
+            "input": raw
+        }
+    except:
+        parsed = {"error": "parse failed"}
+
+    # 💾 SAVE CACHE
+    set_cache(cache_key, parsed)
+
+    return jsonify(parsed)
